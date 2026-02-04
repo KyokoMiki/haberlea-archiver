@@ -27,6 +27,7 @@ extension_settings = ExtensionInformation(
     extension_type="post_download",
     settings={
         "priority": 100,
+        "enabled": True,
         "zip_enabled": False,
         "compression_level": 0,
         "delete_after_upload": False,
@@ -41,6 +42,7 @@ class ExtensionSettings(msgspec.Struct, kw_only=True):
     """Settings for ZIP compression and Baidu upload extension.
 
     Attributes:
+        enabled: Whether the archiver extension is enabled.
         zip_enabled: Whether ZIP compression is enabled.
         compression_level: Compression level (0-9, 0=store, 9=best).
         delete_after_upload: Whether to delete archive and source files after
@@ -50,6 +52,7 @@ class ExtensionSettings(msgspec.Struct, kw_only=True):
         upload_path: Remote path on Baidu NetDisk.
     """
 
+    enabled: bool = True
     zip_enabled: bool = False
     compression_level: int = 0
     delete_after_upload: bool = False
@@ -78,6 +81,10 @@ class Archiver(ExtensionBase):
         """
         if not job.download_path:
             logger.warning("Job has no download path: %s", job.job_id)
+            return
+
+        if not self.settings.enabled:
+            logger.debug("Archiver extension is disabled")
             return
 
         path = Path(job.download_path.rstrip("/\\"))
