@@ -14,13 +14,12 @@ import msgspec
 
 from haberlea.plugins.base import ExtensionBase
 from haberlea.utils.models import ExtensionInformation
+from haberlea.utils.utils import compress_to_zip, delete_path
 
 if TYPE_CHECKING:
     from haberlea.download_queue import DownloadJob
-from haberlea.utils.utils import compress_to_zip, delete_path
 
 logger = logging.getLogger(__name__)
-
 
 # Extension settings exposed to the plugin system
 extension_settings = ExtensionInformation(
@@ -79,7 +78,7 @@ class Archiver(ExtensionBase):
         Args:
             job: The completed download job containing all track information.
         """
-        if not job.download_path:
+        if not job.definition.download_path:
             logger.warning("Job has no download path: %s", job.job_id)
             return
 
@@ -87,7 +86,7 @@ class Archiver(ExtensionBase):
             logger.debug("Archiver extension is disabled")
             return
 
-        path = Path(job.download_path.rstrip("/\\"))
+        path = job.definition.download_path
 
         if not path.exists():
             logger.warning("Download path does not exist: %s", path)
