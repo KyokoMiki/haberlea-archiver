@@ -99,7 +99,7 @@ class Archiver(ExtensionBase):
 
         # Step 1: ZIP compression (if enabled, skip for single files)
         if self.settings.zip_enabled and not is_single_file:
-            archive_path = path.with_suffix(".zip")
+            archive_path = path.parent / f"{path.name}.zip"
             try:
                 logger.info("Creating ZIP archive: %s", archive_path)
                 await asyncio.to_thread(
